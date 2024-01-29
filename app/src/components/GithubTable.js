@@ -16,7 +16,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import { useEffect, useState } from "react";
 import ToggleButton from "@mui/material/ToggleButton";
 import Button from "@mui/material/Button";
-import useScreenWidth from "../hooks/useScreeWidth";
+import useScreenWidth from "../utils/useScreeWidth";
 
 const useStyles = makeStyles({
   table: {
@@ -31,9 +31,9 @@ const useStyles = makeStyles({
   medium_page: {
     display: "flex",
     justifyContent: "space-around",
-    flexDirection:"column-reverse",
-    paddingLeft:"2.5vw",
-    paddingRight:"2.5vw",
+    flexDirection: "column-reverse",
+    paddingLeft: "2.5vw",
+    paddingRight: "2.5vw",
     marginTop: "9vh",
     width: "100vw",
     flexShrink: "0",
@@ -41,8 +41,8 @@ const useStyles = makeStyles({
   large_page: {
     display: "flex",
     justifyContent: "space-around",
-    flexDirection:"row",
-    padding:"auto",
+    flexDirection: "row",
+    padding: "auto",
     marginTop: "10vh",
     width: "99vw",
     flexShrink: "0",
@@ -61,14 +61,17 @@ export const GithubTable = ({
   const [filteredusers, setFilteredusers] = useState([]);
   const [todisplayusers, setTodisplayusers] = useState([]);
   const getghfriends = async () => {
-    const response = await fetch("http://127.0.0.1:8000/githubFL/", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization:
-          "Bearer " + JSON.parse(localStorage.getItem("authTokens")).access,
-      },
-    });
+    const response = await fetch(
+      process.env.REACT_APP_BACKEND_URL + "/githubFL/",
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization:
+            "Bearer " + JSON.parse(localStorage.getItem("authTokens")).access,
+        },
+      }
+    );
 
     const newData = await response.json();
     setGithubfriends(newData);
@@ -77,55 +80,51 @@ export const GithubTable = ({
   };
 
   async function addfriend(e) {
-
-    const response = await fetch("http://localhost:8000/githubFA/", {
-
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization:
-          "Bearer " + JSON.parse(localStorage.getItem("authTokens")).access,
-      },
-      body: JSON.stringify({
-        friendName: e.username,
-      }),
-    });
+    const response = await fetch(
+      process.env.REACT_APP_BACKEND_URL + "/githubFA/",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization:
+            "Bearer " + JSON.parse(localStorage.getItem("authTokens")).access,
+        },
+        body: JSON.stringify({
+          friendName: e.username,
+        }),
+      }
+    );
     if (response.status !== 200) {
       alert("ERROR!!!!");
-    }
-    else
-    {
+    } else {
       setGithubfriends((current) => [...current, e]);
     }
   }
   async function dropfriend(e) {
-
-    const response = await fetch("http://localhost:8000/githubFD/", {
-
-
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization:
-          "Bearer " + JSON.parse(localStorage.getItem("authTokens")).access,
-      },
-      body: JSON.stringify({
-        friendName: e,
-      }),
-    });
+    const response = await fetch(
+      process.env.REACT_APP_BACKEND_URL + "/githubFD/",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization:
+            "Bearer " + JSON.parse(localStorage.getItem("authTokens")).access,
+        },
+        body: JSON.stringify({
+          friendName: e,
+        }),
+      }
+    );
     if (response.status !== 200) {
       alert("ERROR!!!!");
-    }
-    else
-    {
+    } else {
       setGithubfriends((current) =>
-      current.filter((fruit) => fruit.username !== e)
-    );
+        current.filter((fruit) => fruit.username !== e)
+      );
     }
   }
   useEffect(() => {
     getghfriends();
-    // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
@@ -137,7 +136,6 @@ export const GithubTable = ({
     if (searchfield === "") {
       setFilteredusers(todisplayusers);
     } else {
-      // eslint-disable-next-line
       setFilteredusers(
         todisplayusers.filter((glUser) => {
           return glUser.username
@@ -146,13 +144,11 @@ export const GithubTable = ({
         })
       );
     }
-    // eslint-disable-next-line
   }, [ghshowfriends, githubfriends, searchfield, githubUsers]);
   useEffect(() => {
     if (searchfield === "") {
       setFilteredusers(todisplayusers);
     } else {
-      // eslint-disable-next-line
       setFilteredusers(
         todisplayusers.filter((glUser) => {
           return glUser.username
@@ -173,16 +169,22 @@ export const GithubTable = ({
 
   return (
     <div
-      className={`codechef ${isMobile ? classes.medium_page : classes.large_page}`}
+      className={`codechef ${
+        isMobile ? classes.medium_page : classes.large_page
+      }`}
     >
-      <div style={{
-        width: "18vw",
-        maxWidth:"200px",
-        marginBottom:"10px",
-      }}></div>{" "}
-      <div style={{
-        marginBottom:"1px",
-      }}>
+      <div
+        style={{
+          width: "18vw",
+          maxWidth: "200px",
+          marginBottom: "10px",
+        }}
+      ></div>{" "}
+      <div
+        style={{
+          marginBottom: "1px",
+        }}
+      >
         <TableContainer component={Paper}>
           <Table
             className={darkmode ? classes.table_dark : classes.table}
@@ -231,7 +233,7 @@ export const GithubTable = ({
                     <StyledTableCell>
                       <Button
                         variant="contained"
-                        style={{backgroundColor:darkmode?"#146ca4":""}}
+                        style={{ backgroundColor: darkmode ? "#146ca4" : "" }}
                         onClick={() => {
                           !githubfriends.some(
                             (item) => item.username === glUser.username
@@ -259,7 +261,7 @@ export const GithubTable = ({
           flexDirection: "column",
           marginTop: "2vh",
           position: "relative",
-          marginBottom:"10px",
+          marginBottom: "10px",
         }}
       >
         <TextField
@@ -285,9 +287,9 @@ export const GithubTable = ({
             setGHshowfriends(!ghshowfriends);
           }}
           style={{
-            backgroundColor:darkmode?"#02055a":"#2196f3",
+            backgroundColor: darkmode ? "#02055a" : "#2196f3",
             color: "white",
-            marginTop:isMobile ? "2vh" : "4vh",
+            marginTop: isMobile ? "2vh" : "4vh",
           }}
         >
           {ghshowfriends ? "Show All" : "Show Friends"}

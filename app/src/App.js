@@ -8,19 +8,19 @@ import { CodeforcesTable } from "./components/CodeforcesTable.js";
 import { CodechefTable } from "./components/CodechefTable";
 import { GithubTable } from "./components/GithubTable";
 import Profile1 from "./components/Profile1.js";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { OpenlakeTable } from "./components/OpenlakeTable";
 import Login from "./components/Login";
 import HomePage from "./components/HomePage";
 import Register from "./components/Register";
 import { LeetcodeTable } from "./components/LeetcodeTable";
 import PrivateRoute from "./utils/PrivateRoute";
-import { AuthProvider } from "./Context/AuthContext";
-import GoToTop from "./components/GoToTop";
-import Footer from "./components/Footer"
+import { AuthProvider } from "./utils/AuthContext";
+import Footer from "./components/Footer";
 import LeetcodeRankings from "./components/LeetcodeRankings";
 import LeetcodeRankingsCCPS from "./components/LeetcodeRankingsCCPS";
 import LeetcodeGraphs from "./components/LeetcodeGraphs";
+
 const darkTheme = createTheme({
   palette: {
     mode: "dark",
@@ -80,6 +80,7 @@ const lightTheme = createTheme({
     },
   },
 });
+
 function App() {
   const [codechefUsers, setCodechefUsers] = useState([]);
   const [darkmode, setDarkmode] = useState(false);
@@ -97,55 +98,51 @@ function App() {
   const [ghshowfriends, setGhshowfriends] = useState(false);
   const [openlakefriends, setOpenlakefriends] = useState([]);
   const [olshowfriends, setOlshowfriends] = useState(false);
+
   const toggle = () => {
     setDarkmode(!darkmode);
     const g = localStorage.getItem("dark-mode");
     if (g === "off") localStorage.setItem("dark-mode", "on");
     else localStorage.setItem("dark-mode", "off");
   };
+
   useEffect(() => {
     const dm = localStorage.getItem("dark-mode");
-    if (dm != null) {
-      if (dm === "on") setDarkmode(true);
-      else setDarkmode(false);
+    if (dm !== null) {
+      setDarkmode(dm === "on");
     }
-  }, []);
-  useEffect(() => {
-    fetch("http://localhost:8000/codeforces/")
-      .then((res) => res.json())
-      .then((res) => {
-        setCodeforcesUsers(res);
-      });
-  }, []);
 
-  useEffect(() => {
-    fetch("http://localhost:8000/codechef/")
-      .then((res) => res.json())
-      .then((res) => {
-        setCodechefUsers(res);
-      });
-  }, []);
-  useEffect(() => {
-    fetch("http://localhost:8000/leetcode/")
-      .then((res) => res.json())
-      .then((res) => {
-        setLeetcodeUsers(res);
-      });
-  }, []);
-  useEffect(() => {
-    fetch("http://localhost:8000/openlake/")
-      .then((res) => res.json())
-      .then((res) => {
-        setOpenlakeContributor(res);
-      });
-  }, []);
+    const fetchData = async () => {
+      try {
+        const responses = await Promise.all([
+          fetch(process.env.REACT_APP_BACKEND_URL + "/codeforces/").then(
+            (res) => res.json()
+          ),
+          fetch(process.env.REACT_APP_BACKEND_URL + "/codechef/").then((res) =>
+            res.json()
+          ),
+          fetch(process.env.REACT_APP_BACKEND_URL + "/leetcode/").then((res) =>
+            res.json()
+          ),
+          fetch(process.env.REACT_APP_BACKEND_URL + "/openlake/").then((res) =>
+            res.json()
+          ),
+          fetch(process.env.REACT_APP_BACKEND_URL + "/github/").then((res) =>
+            res.json()
+          ),
+        ]);
 
-  useEffect(() => {
-    fetch("http://localhost:8000/github/")
-      .then((res) => res.json())
-      .then((res) => {
-        setGithubUser(res);
-      });
+        setCodeforcesUsers(responses[0]);
+        setCodechefUsers(responses[1]);
+        setLeetcodeUsers(responses[2]);
+        setOpenlakeContributor(responses[3]);
+        setGithubUser(responses[4]);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
   }, []);
 
   return (
@@ -154,101 +151,131 @@ function App() {
       <Router>
         <AuthProvider>
           <div className="App">
-            <Navbar darkmode={darkmode} toggle={toggle}/>
+            <Navbar darkmode={darkmode} toggle={toggle} />
             <Grid container>
               <Grid item xs={6}>
-                <Switch>
-                  <Route exact path="/register">
-                    <Register darkmode={darkmode} />
-                  </Route>
-                  <Route exact path="/login">
-                    <Login darkmode={darkmode} />
-                  </Route>
-                  <Route exact path="/leetcoderankingsccps">
-                    <LeetcodeRankingsCCPS darkmode={darkmode} />
-                  </Route>
-                  <PrivateRoute exact path="/">
-                    <HomePage />
-                  </PrivateRoute>
-
-                  <PrivateRoute exact path="/codeforces">
-                    <CodeforcesTable
-                      darkmode={darkmode}
-                      codeforcesfriends={codeforcesfriends}
-                      setCodeforcesfriends={setCodeforcesfriends}
-                      codeforcesUsers={codeforcesUsers}
-                      cfshowfriends={cfshowfriends}
-                      setCfshowfriends={setCfshowfriends}
-                    />
-                  </PrivateRoute>
-                  <PrivateRoute exact path="/codechef">
-                    <CodechefTable
-                      darkmode={darkmode}
-                      codechefUsers={codechefUsers}
-                      codecheffriends={codecheffriends}
-                      setCodecheffriends={setCodecheffriends}
-                      ccshowfriends={ccshowfriends}
-                      setCCshowfriends={setCCshowfriends}
-                    />
-                  </PrivateRoute>
-                  <PrivateRoute exact path="/openlake">
-                    <OpenlakeTable
-                      darkmode={darkmode}
-                      codechefUsers={openlakeContributor}
-                      codecheffriends={openlakefriends}
-                      setCodecheffriends={setOpenlakefriends}
-                      ccshowfriends={olshowfriends}
-                      setCCshowfriends={setOlshowfriends}
-                    />
-                  </PrivateRoute>
-                  <PrivateRoute exact path="/github">
-                    <GithubTable
-                      darkmode={darkmode}
-                      githubUsers={githubUser}
-                      githubfriends={githubfriends}
-                      setGithubfriends={setGithubfriends}
-                      ghshowfriends={ghshowfriends}
-                      setGHshowfriends={setGhshowfriends}
-                    />
-                  </PrivateRoute>
-                  <PrivateRoute exact path="/leetcode">
-                    <LeetcodeTable
-                      darkmode={darkmode}
-                      leetcodeUsers={leetcodeUsers}
-                      leetcodefriends={leetcodefriends}
-                      setLeetcodefriends={setLeetcodefriends}
-                      ltshowfriends={ltshowfriends}
-                      setLTshowfriends={setLtshowfriends}
-                    />
-                  </PrivateRoute>
-                  <PrivateRoute exact path="/profile">
-                    <Profile1 darkmode={darkmode} />
-                  </PrivateRoute>
-
-                  <PrivateRoute exact path="/leetcoderankings">
-                    <LeetcodeRankings darkmode={darkmode} />
-                  </PrivateRoute>
-                  <PrivateRoute  path="/leetcoderanking/:username">
-                    <LeetcodeGraphs darkmode={darkmode} />
-                  </PrivateRoute>
-
-                  {/* <PrivateRoute exact path="/leetcoderankingsccps">
-                    <LeetcodeRankingsCCPS darkmode={darkmode} />
-                  </PrivateRoute> */}
-                  
-                  <Route exact path="/*">
-                    <HomePage />
-                  </Route>
-               
-                </Switch>
+                <Routes>
+                  <Route
+                    path="/register"
+                    element={<Register darkmode={darkmode} />}
+                  />
+                  <Route
+                    path="/login"
+                    element={<Login darkmode={darkmode} />}
+                  />
+                  <Route
+                    path="/leetcoderankingsccps"
+                    element={<LeetcodeRankingsCCPS darkmode={darkmode} />}
+                  />
+                  <Route
+                    path="/codeforces"
+                    element={
+                      <PrivateRoute>
+                        <CodeforcesTable
+                          darkmode={darkmode}
+                          codeforcesfriends={codeforcesfriends}
+                          setCodeforcesfriends={setCodeforcesfriends}
+                          codeforcesUsers={codeforcesUsers}
+                          cfshowfriends={cfshowfriends}
+                          setCfshowfriends={setCfshowfriends}
+                        />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/codechef"
+                    element={
+                      <PrivateRoute>
+                        <CodechefTable
+                          darkmode={darkmode}
+                          codechefUsers={codechefUsers}
+                          codecheffriends={codecheffriends}
+                          setCodecheffriends={setCodecheffriends}
+                          ccshowfriends={ccshowfriends}
+                          setCCshowfriends={setCCshowfriends}
+                        />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/openlake"
+                    element={
+                      <PrivateRoute>
+                        <OpenlakeTable
+                          darkmode={darkmode}
+                          codechefUsers={openlakeContributor}
+                          codecheffriends={openlakefriends}
+                          setCodecheffriends={setOpenlakefriends}
+                          ccshowfriends={olshowfriends}
+                          setCCshowfriends={setOlshowfriends}
+                        />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/github"
+                    element={
+                      <PrivateRoute>
+                        <GithubTable
+                          darkmode={darkmode}
+                          githubUsers={githubUser}
+                          githubfriends={githubfriends}
+                          setGithubfriends={setGithubfriends}
+                          ghshowfriends={ghshowfriends}
+                          setGHshowfriends={setGhshowfriends}
+                        />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/leetcode"
+                    element={
+                      <PrivateRoute>
+                        <LeetcodeTable
+                          darkmode={darkmode}
+                          leetcodeUsers={leetcodeUsers}
+                          leetcodefriends={leetcodefriends}
+                          setLeetcodefriends={setLeetcodefriends}
+                          ltshowfriends={ltshowfriends}
+                          setLTshowfriends={setLtshowfriends}
+                        />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/profile"
+                    element={
+                      <PrivateRoute>
+                        <Profile1 darkmode={darkmode} />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/leetcoderankings"
+                    element={
+                      <PrivateRoute>
+                        <LeetcodeRankings darkmode={darkmode} />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/leetcoderanking/:username"
+                    element={
+                      <PrivateRoute>
+                        <LeetcodeGraphs darkmode={darkmode} />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route path="/*" element={<HomePage />} />
+                </Routes>
               </Grid>
             </Grid>
-            <GoToTop/>
-            <Footer/>
+            <Footer />
           </div>
         </AuthProvider>
       </Router>
     </ThemeProvider>
   );
 }
+
 export default App;

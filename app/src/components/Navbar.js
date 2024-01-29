@@ -8,18 +8,18 @@ import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import MaterialUISwitch from "@material-ui/core/Switch";
-import CodechefLogo from "../icons/codechef.png";
+import CodechefLogo from "../assets/codechef.png";
 import GitHubIcon from "@material-ui/icons/GitHub";
-import CodeforcesLogo from "../icons/codeforces.svg";
-import LeetcodeLogo from "../icons/leetcode.svg";
-import OpenlakeLogo from "../icons/openlake.svg";
-import LeetcodeRankingsLogo from "../icons/leetcodecontest.png";
-import CCPS from "../icons/CCPS.jpeg";
-import AuthContext from "../Context/AuthContext";
+import CodeforcesLogo from "../assets/codeforces.svg";
+import LeetcodeLogo from "../assets/leetcode.svg";
+import OpenlakeLogo from "../assets/openlake.svg";
+import LeetcodeRankingsLogo from "../assets/leetcodecontest.png";
+import CCPS from "../assets/CCPS.jpeg";
+import AuthContext from "../utils/AuthContext";
 import { useMediaQuery } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
@@ -48,15 +48,15 @@ const useStyles = makeStyles((theme) => ({
 
 export const Navbar = ({ darkmode, toggle }) => {
   const classes = useStyles();
-  const history = useHistory();
+  const navigate = useNavigate();
   const manageClick = () => {
-    history.push("/profile");
+    navigate("/profile");
   };
   const tohome = () => {
-    history.push("/");
+    navigate("/");
   };
   const toLogin = () => {
-    history.push("/login");
+    navigate("/login");
   };
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -71,7 +71,7 @@ export const Navbar = ({ darkmode, toggle }) => {
 
   const { user, logoutUser } = useContext(AuthContext);
 
-  const isMobile = useMediaQuery("(max-width: 600px)"); // Set the maximum width for mobile view
+  const isMobile = useMediaQuery("(max-width: 860px)"); // Set the maximum width for mobile view
 
   return (
     <div className={classes.root}>
@@ -84,7 +84,10 @@ export const Navbar = ({ darkmode, toggle }) => {
       >
         <Toolbar>
           <Typography variant="h6" className={classes.title}>
-            <Button style={{ color: "white", fontSize:'1.3rem', fontWeight:'900' }} onClick={tohome}>
+            <Button
+              style={{ color: "white", fontSize: "1.3rem", fontWeight: "900" }}
+              onClick={tohome}
+            >
               Leaderboard Pro
             </Button>
           </Typography>
@@ -140,7 +143,10 @@ export const Navbar = ({ darkmode, toggle }) => {
             </MenuItem>
           </Menu>
 
-          <div className={classes.platformButtons} style={{display:"flex",justifyContent:"center"}}>
+          <div
+            className={classes.platformButtons}
+            style={{ display: "flex", justifyContent: "center" }}
+          >
             {/* Logos (hidden in mobile view) */}
             <div className={classes.desktopLogos}>
               <Link style={{ margin: "12px" }} to="/codechef">
